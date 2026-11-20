@@ -1,0 +1,21 @@
+name: Repository integrity checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  project-files:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - run: test -s project.godot
+      - name: Check GDScript merge markers
+        shell: bash
+        run: |
+          if git grep -n '^<<<<<<< ' -- '*.gd' project.godot; then
+            exit 1
+          fi
